@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+</head>
+<body>
+    <button onclick="sendCommand('Play/Pause')">Play/Pause</button>
+    <button onclick="sendCommand('Next')">Next</button>
+    <button onclick="sendCommand('Previous')">Previous</button>
+    <button onclick="sendCommand('Quit')">Quit</button>
+    
+    
+    <script>
+        const socket = io();
+        function sendCommand(command) {
+            socket.emit('control', { command: command });
+        }
+    </script>
+</body>
+</html>
