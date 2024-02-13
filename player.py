@@ -130,6 +130,26 @@ chip = gpiod.Chip(CHIP) # Open the GPIO chip
 getlines = chip.get_lines(getoffsets) # Get the GPIO lines
 getlines.request(consumer=CONSUMER, type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
+eQEP = '2'
+COUNTERPATH = '/dev/bone/counter/' + eQEP + '/count0'
+
+#ms = 100 # time between samples in ms
+maxCount = '1000000'
+
+# set eQEP max count
+f = open(COUNTERPATH+ '/ceiling', 'w')
+f.write(maxCount)
+f.close()
+
+# Enable
+f = open(COUNTERPATH + '/enable', 'w')
+f.write('1')
+f.close()
+f =  open(COUNTERPATH + '/count', 'r')
+
+olddata = '1'
+
+
 def get_input(player):
     vals = getlines.get_values()
     ev_lines = getlines.event_wait(sec=1)
@@ -150,6 +170,7 @@ mixer.init()
 player = pyPlayer()
 player.startMusic()
 
+vol = 0.7
 #sio.start_background_task(start_listener, player)
 
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
@@ -157,4 +178,24 @@ while True:
     player.draw()
     pygame.display.update()
     get_input(player)
+    f.seek(0)
+    data = f.read()[:-1]
+    # print only if data changes
+    # print("data: " + data + " " + str(type(data)))
+    # print("olddata: " + str(olddata) + " " + str(type(olddata)))
+    if data != olddata:
+        if(data > olddata):
+            vol += 0.1
+        else:
+            vol -= 0.1
+        olddata = data
+        if(vol > 1):
+            vol = 1.0
+        elif(vol < 0):
+            vol = 0.0
+        vol = round(vol, 2)
+        mixer.music.set_volume(vol) 
+        print("volume = " + str(vol))
+    #time.sleep(ms/1000)
+    
     time.sleep(0.1)
