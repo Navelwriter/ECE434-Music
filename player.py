@@ -10,7 +10,7 @@ import math
 import time
 from mutagen.mp3 import MP3
 from flask import Flask, render_template, request
-#import socketio
+import gpiod
 
 app = Flask(__name__)
 folder_path = "./music"
@@ -88,20 +88,6 @@ class pyPlayer :
             mixer.music.play()
             self.is_Paused = False
 
-    def checkInput(self):
-        "Check for any input events and return the command string"
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    return "pause"
-                elif event.key == pygame.K_r:
-                    return "unpause"
-                elif event.key == pygame.K_s:
-                    return "stop"
-                elif event.key == pygame.K_q:
-                    return "quit"
-        return ""
-
     def startMusic(self):
         mixer.music.play()
 
@@ -136,16 +122,28 @@ class pyPlayer :
         pygame.draw.rect(self.screen, (0, 0, 0), (self.size[0]-110, 50, 100, 50))
         self.screen.blit(text, (self.size[0]-110, 50))
 
+CONSUMER='getset'
+CHIP='1'
+getoffsets=[14, 15, 12, 13] # P8_16, P8_15, P8_12, P8_11
 
-# create socketio client
-#sio = socketio.Client()
-#sio.connect('http://localhost:8081')
+chip = gpiod.Chip(CHIP) # Open the GPIO chip
+getlines = chip.get_lines(getoffsets) # Get the GPIO lines
+getlines.request(consumer=CONSUMER, type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
-def start_listener(player):
-    @sio.on('command')
-    def on_command(data):
-        print('I received a command: ', data)
-        player.command(data)
+def get_input(player):
+    vals = getlines.get_values()
+    ev_lines = getlines.event_wait(sec=1)
+    if ev_lines:
+        for line in ev_lines:
+            event = line.event_read()
+    if(vals[2] == 1):
+        player.command("Play/Pause")
+    elif(vals[1] == 1):
+        player.command("Next")
+    elif(vals[3] == 1):
+        player.command("Previous")
+    elif(vals[0] == 1):
+        player.command("Quit")
 
 # Start playing the song 
 mixer.init()
@@ -158,4 +156,5 @@ print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
     player.draw()
     pygame.display.update()
+    get_input(player)
     time.sleep(0.1)
