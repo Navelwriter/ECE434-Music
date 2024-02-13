@@ -124,7 +124,7 @@ class pyPlayer :
 
 CONSUMER='getset'
 CHIP='1'
-getoffsets=[14, 15, 12, 13] # P8_16, P8_15, P8_12, P8_11
+getoffsets=[14, 15, 18, 16] # P8_16, P8_15, P8_12, P8_11
 
 chip = gpiod.Chip(CHIP) # Open the GPIO chip
 getlines = chip.get_lines(getoffsets) # Get the GPIO lines
@@ -140,7 +140,7 @@ def get_input(player):
         player.command("Play/Pause")
     elif(vals[1] == 1):
         player.command("Next")
-    elif(vals[3] == 1):
+    elif(vals[3] == 0):
         player.command("Previous")
     elif(vals[0] == 1):
         player.command("Quit")

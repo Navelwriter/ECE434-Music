@@ -151,7 +151,7 @@ def start_listener(player):
 # Init :gladsuna:
 CONSUMER='getset'
 CHIP='1'
-getoffsets=[14, 15, 12, 13] # P8_16, P8_15, P8_12, P8_11
+getoffsets=[14, 15, 18, 16] # P8_16, P8_15, P8_12, P8_11
 
 chip = gpiod.Chip(CHIP)
 
@@ -177,7 +177,7 @@ while True:
     if(vals[0] == 1):
         player.command("Quit")
 
-    if(vals[3] == 1):
+    if(vals[3] == 0):
         player.command("Previous")
 
     if(vals[1] == 1):
