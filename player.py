@@ -124,7 +124,7 @@ class pyPlayer :
 
 CONSUMER='getset'
 CHIP='1'
-getoffsets=[14, 15, 18, 16] # P8_16, P8_15, P8_12, P8_11
+getoffsets=[14, 15, 18, 16] # P8_16, P8_15, P9_14, P9_15
 
 chip = gpiod.Chip(CHIP) # Open the GPIO chip
 getlines = chip.get_lines(getoffsets) # Get the GPIO lines
