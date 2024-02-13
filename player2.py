@@ -8,25 +8,27 @@ from pygame import mixer
 import pygame
 import math
 import time
-from mutagen.mp3 import MP3
 import gpiod
+from mutagen.mp3 import MP3
+from flask import Flask, render_template, request
+#import socketio
+
+app = Flask(__name__)
+folder_path = "./music"
+player = None
 
 class pyPlayer :
-    screen = None;
-    mix = None;
-    bar_width = 5
-    bars = []
-    song = "hina.mp3"
-    song_info = MP3(song)
+    screen = None
+    mix = None
+    is_Paused = False
+    song_list = []
+    song_index = 0
+    song = ""
+    song_info = ""
     def __init__(self):
         "Ininitializes a new pygame screen using the framebuffer"
-        # Based on "Python GUI in Linux frame buffer"
-        # http://www.karoltomala.com/blog/?p=679
-        # os.putenv('SDL_FBDEV',   '/dev/fb0')
-        # os.putenv('SDL_VIDEODRIVER', driver)
         os.putenv('SDL_NOMOUSE', '1')
         pygame.display.init()
-
         self.size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
         print("Framebuffer size: ", self.size[0], "x", self.size[1])
         self.screen = pygame.display.set_mode(self.size, pygame.FULLSCREEN)
@@ -36,24 +38,57 @@ class pyPlayer :
         pygame.mouse.set_visible(False)
         # Initialise font support
         pygame.font.init()
-        # Loading the song 
-        mixer.music.load("hina.mp3") 
+        self.scan_music()
+        # Loading the first song 
+        self.set_song(self.song_list[self.song_index])
         # Setting the volume 
         mixer.music.set_volume(0.7) 
 
+    def scan_music(self):
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                if file.endswith(".mp3"):
+                    self.song_list.append(file)
+        print(self.song_list)
+
     def __del__(self):
         "Destructor to make sure pygame shuts down, etc." 
+
+    def set_song(self, song):
+        self.song = song
+        path = folder_path + "/" + song
+        mixer.music.load(path)
+        self.song_info = MP3(path)
+
     def command(self, cmd):
         "Processes a single command"
-        if cmd == "pause":
-            mixer.music.pause()
-        elif cmd == "unpause":
-            mixer.music.unpause()
-        elif cmd == "stop":
+        print(cmd)
+        if cmd == "Play/Pause":
+            if self.is_Paused:
+                mixer.music.unpause()
+                self.is_Paused = False
+            else:
+                mixer.music.pause()
+                self.is_Paused = True
+        elif cmd == "Quit":
             mixer.music.stop()
-        elif cmd == "quit":
             pygame.quit()
             sys.exit()
+        elif cmd == "Next":
+            self.song_index += 1
+            if self.song_index >= len(self.song_list):
+                self.song_index = 0
+            self.set_song(self.song_list[self.song_index])
+            mixer.music.play()
+            self.is_Paused = False
+        elif cmd == "Previous":
+            self.song_index -= 1
+            if self.song_index < 0:
+                self.song_index = len(self.song_list) - 1
+            self.set_song(self.song_list[self.song_index])
+            mixer.music.play()
+            self.is_Paused = False
+
     def checkInput(self):
         "Check for any input events and return the command string"
         for event in pygame.event.get():
@@ -71,21 +106,25 @@ class pyPlayer :
     def startMusic(self):
         mixer.music.play()
 
-    def draw(self):
-        # display the name of the song on the screen
-        font = pygame.font.Font(None, 36)
+    def drawTitle(self, font):
+        # clear the screen before drawing
+        pygame.draw.rect(self.screen, (0, 0, 0), (0, 0, self.size[0], 50))
         text = font.render(self.song, 1, (255, 255, 255))
         self.screen.blit(text, (10, 10))
+
+    def draw(self):
+        # display the name of the song on the screen
+        font = pygame.font.Font(None, 36) 
+        self.drawTitle(font)
         # display the progress of the song on the screen as text 
         pos = mixer.music.get_pos()
         minutes = math.floor(pos/60000)
         seconds = (pos%60000)/1000
         seconds = math.floor(seconds)
-        #if the seconds are less than 10, add a 0 in front of it
+        # add a leading zero if seconds is less than 10
         if seconds < 10:
-            text = font.render(str(minutes) + ":0" + str(seconds), 1, (255, 255, 255))
-        else:
-            text = font.render(str(minutes) + ":" + str(seconds), 1, (255, 255, 255))
+            seconds = "0" + str(seconds)
+        text = font.render(str(minutes) + ":" + str(seconds), 1, (255, 255, 255))
         pygame.draw.rect(self.screen, (0, 0, 0), (10, 50, 100, 50))
         self.screen.blit(text, (10, 50))
         #get the total length of the song 
@@ -99,9 +138,15 @@ class pyPlayer :
         self.screen.blit(text, (self.size[0]-110, 50))
 
 
+# create socketio client
+#sio = socketio.Client()
+#sio.connect('http://localhost:8081')
 
-
-
+def start_listener(player):
+    @sio.on('command')
+    def on_command(data):
+        print('I received a command: ', data)
+        player.command(data)
 
 # Init :gladsuna:
 CONSUMER='getset'
@@ -113,11 +158,14 @@ chip = gpiod.Chip(CHIP)
 getlines = chip.get_lines(getoffsets)
 getlines.request(consumer=CONSUMER, type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
-
 # Start playing the song 
 mixer.init()
 player = pyPlayer()
 player.startMusic()
+vals = getlines.get_values
+
+#sio.start_background_task(start_listener, player)
+
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
     ev_lines = getlines.event_wait(sec=1)
@@ -125,8 +173,19 @@ while True:
         for line in ev_lines:
             event = line.event_read()
     vals = getlines.get_values()
-    cmd = player.checkInput()
-    player.command(cmd)
+    # print(vals)
+    if(vals[0] == 1):
+        player.command("Quit")
+
+    if(vals[3] == 1):
+        player.command("Previous")
+
+    if(vals[1] == 1):
+        player.command("Next")
+
+    if(vals[2] == 1):
+        player.command("Play/Pause")
+
     player.draw()
     pygame.display.update()
     time.sleep(0.1)

@@ -10,7 +10,7 @@ import math
 import time
 from mutagen.mp3 import MP3
 from flask import Flask, render_template, request
-import socketio
+#import socketio
 
 app = Flask(__name__)
 folder_path = "./music"
@@ -138,8 +138,8 @@ class pyPlayer :
 
 
 # create socketio client
-sio = socketio.Client()
-sio.connect('http://localhost:8081')
+#sio = socketio.Client()
+#sio.connect('http://localhost:8081')
 
 def start_listener(player):
     @sio.on('command')
@@ -152,7 +152,7 @@ mixer.init()
 player = pyPlayer()
 player.startMusic()
 
-sio.start_background_task(start_listener, player)
+#sio.start_background_task(start_listener, player)
 
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
