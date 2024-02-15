@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/home/debian/ECE434-Music/weh.sh
+ExecStart=/usr/bin/python3 /home/debian/ECE434-Music/player.py
 
 [Install]
 WantedBy=multi-user.target

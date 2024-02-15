@@ -1,0 +1,16 @@
+● player.service - ECE434 Player Service
+     Loaded: loaded (/etc/systemd/system/player.service; enabled; vendor preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2024-02-15 21:08:33 UTC; 8min ago
+   Main PID: 1674 (code=exited, status=1/FAILURE)
+        CPU: 4.346s
+
+Feb 15 21:08:24 BeagleBone systemd[1]: Started ECE434 Player Service.
+Feb 15 21:08:32 BeagleBone python3[1674]: pygame 1.9.6
+Feb 15 21:08:32 BeagleBone python3[1674]: Hello from the pygame community. https://www.pygame.org/contribute.html
+Feb 15 21:08:32 BeagleBone python3[1674]: Traceback (most recent call last):
+Feb 15 21:08:32 BeagleBone python3[1674]:   File "/home/debian/ECE434-Music/player.py", line 136, in <module>
+Feb 15 21:08:32 BeagleBone python3[1674]:     getlines.request(consumer=CONSUMER, type=gpiod.LINE_REQ_EV_BOTH_EDGES)
+Feb 15 21:08:32 BeagleBone python3[1674]: OSError: [Errno 16] Device or resource busy
+Feb 15 21:08:33 BeagleBone systemd[1]: player.service: Main process exited, code=exited, status=1/FAILURE
+Feb 15 21:08:33 BeagleBone systemd[1]: player.service: Failed with result 'exit-code'.
+Feb 15 21:08:33 BeagleBone systemd[1]: player.service: Consumed 4.346s CPU time.
