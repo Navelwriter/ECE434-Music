@@ -13,7 +13,7 @@ from flask import Flask, render_template, request
 import gpiod
 
 app = Flask(__name__)
-folder_path = "./music"
+folder_path = "/home/debian/ECE434-Music/music"
 player = None
 
 class pyPlayer :
@@ -55,6 +55,7 @@ class pyPlayer :
 
     def set_song(self, song):
         self.song = song
+        print(folder_path)
         path = folder_path + "/" + song
         mixer.music.load(path)
         self.song_info = MP3(path)
@@ -112,6 +113,10 @@ class pyPlayer :
         text = font.render(str(minutes) + ":" + str(seconds), 1, (255, 255, 255))
         pygame.draw.rect(self.screen, (0, 0, 0), (10, 50, 100, 50))
         self.screen.blit(text, (10, 50))
+        # print(pos)
+        if int(pos) < 0:
+            print("Playing next song")
+            self.command("Next")
         #get the total length of the song 
         length = self.song_info.info.length
         minutes = math.floor(length/60)
@@ -198,4 +203,4 @@ while True:
         print("volume = " + str(vol))
     #time.sleep(ms/1000)
     
-    time.sleep(0.1)
+    # time.sleep(0.1)

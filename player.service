@@ -1,0 +1,11 @@
+[Unit]
+Description=ECE434 Player Service
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /home/debian/ECE434-Music/player.py
+
+[Install]
+WantedBy=multi-user.target
