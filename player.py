@@ -9,10 +9,8 @@ import pygame
 import math
 import time
 from mutagen.mp3 import MP3
-from flask import Flask, render_template, request
 import gpiod
 
-app = Flask(__name__)
 folder_path = "/home/debian/ECE434-Music/music"
 player = None
 white_color = (255, 255, 255)
@@ -175,7 +173,6 @@ getlines.request(consumer=CONSUMER, type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 eQEP = '2'
 COUNTERPATH = '/dev/bone/counter/' + eQEP + '/count0'
 
-#ms = 100 # time between samples in ms
 maxCount = '1000000'
 
 # set eQEP max count
@@ -212,7 +209,6 @@ player = pyPlayer()
 player.startMusic()
 
 vol = 0.7
-#sio.start_background_task(start_listener, player)
 
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
