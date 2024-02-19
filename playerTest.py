@@ -11,15 +11,21 @@ import time
 from mutagen.mp3 import MP3
 from flask import Flask, render_template, request
 import gpiod
+import numpy 
+from numpy.fft import fft
+from scipy.io import wavfile
+import librosa
 
 app = Flask(__name__)
 folder_path = "/home/debian/ECE434-Music/music"
 player = None
 white_color = (255, 255, 255)
 black_color = (0, 0, 0)
+clock = pygame.time.Clock()
 
 class pyPlayer :
     screen = None
+    sound = None
     mix = None
     is_Paused = False
     song_list = []
@@ -56,12 +62,15 @@ class pyPlayer :
         "Destructor to make sure pygame shuts down, etc." 
 
     def set_song(self, song):
+
         self.song = song
         print(folder_path)
         path = folder_path + "/" + song
         mixer.music.load(path)
         self.song_info = MP3(path)
-
+        time, sample = librosa.load(path, sr=44100)
+        print(time + " " + sample)
+        
     def command(self, cmd):
         "Processes a single command"
         print(cmd)
@@ -84,8 +93,7 @@ class pyPlayer :
             mixer.music.play()
             self.is_Paused = False
         elif cmd == "Previous":
-            if mixer.music.get_pos() < 3000:
-                self.song_index -= 1
+            self.song_index -= 1
             if self.song_index < 0:
                 self.song_index = len(self.song_list) - 1
             self.set_song(self.song_list[self.song_index])
@@ -107,7 +115,7 @@ class pyPlayer :
         self.screen.blit(text, (10, 10))
 
     def drawVolume(self, font):
-        # display the volume on the screen as text
+        # display the volume on the screen as text 
         vol = mixer.music.get_volume()
         vol = round(vol, 2)
         vol = vol * 100
@@ -119,6 +127,7 @@ class pyPlayer :
         pygame.draw.rect(self.screen, black_color, shape)
         self.screen.blit(text, text_location)
 
+
     def getTime(self, time):
         minutes = math.floor(time/60)
         seconds = time%60
@@ -126,6 +135,27 @@ class pyPlayer :
         if seconds < 10:
             seconds = "0" + str(seconds)
         return str(minutes) + ":" + str(seconds)
+
+    def visualizer(self):
+        array = pygame.sndarray.array(self.sound)
+        array = numpy.array(array)
+        left = array[:,0]
+        right = array[:,1]
+        # get playback freq 
+        nuplay, format, channels = pygame.mixer.get_init()
+        # time resolution of the recording
+        sample_length = 0.1
+        sample_num = int(nuplay * sample_length)
+        # n to frequency
+        freq = numpy.arrange(sample_num/2)/sample_length
+        # fft
+        spectrum = fft(left[:sample_num])
+        positive = spectrum[1:1+sample_num//2]
+        power = (positive*positive.conj()).real
+        # draw
+        for i in range(sample_num//2):
+            pygame.draw.line(self.screen, (255, 255, 255), (i, 240), (i, 240-power[i]*0.00005))
+        pygame.display.flip()
 
     def draw(self):
         # display the name of the song on the screen
@@ -155,13 +185,17 @@ class pyPlayer :
         self.drawVolume(font)
 
         progress = round(pos/length, 2) # get the progress of the song as a percentage
-        if pos < 0:
+        if progress == -0.0:
+            progress = 1.0
+        if progress == 1.0:
             self.command("Next")
         # draw a rectangle on the screen to represent the progress of the song
         shape = (0, 50, self.size[0], 25) # x, y, width, height
         pygame.draw.rect(self.screen, black_color, shape)
         shape = (0, 50, self.size[0]*progress, 25) # x, y, width, height
         pygame.draw.rect(self.screen, white_color, shape)
+        
+        self.visualizer()
 
 
 CONSUMER='getset'
@@ -206,14 +240,13 @@ def get_input(player):
     elif(vals[0] == 1):
         player.command("Quit")
 
+
 # Start playing the song 
 mixer.init()
 player = pyPlayer()
 player.startMusic()
 
 vol = 0.7
-#sio.start_background_task(start_listener, player)
-
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
     player.draw()
@@ -234,3 +267,4 @@ while True:
         vol = round(vol, 2)
         mixer.music.set_volume(vol) 
         print("volume = " + str(vol))
+    clock.tick(60)
