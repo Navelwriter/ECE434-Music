@@ -84,7 +84,8 @@ class pyPlayer :
             mixer.music.play()
             self.is_Paused = False
         elif cmd == "Previous":
-            self.song_index -= 1
+            if mixer.music.get_pos() < 3000:
+                self.song_index -= 1
             if self.song_index < 0:
                 self.song_index = len(self.song_list) - 1
             self.set_song(self.song_list[self.song_index])
@@ -139,9 +140,9 @@ class pyPlayer :
         self.screen.blit(text, text_location)
 
         progress = round(pos/length, 2) # get the progress of the song as a percentage
-        if progress == -0.0:
-            progress = 1.0
-        if progress == 1.0:
+        #if progress == -0.0:
+        #progress = 1.0
+        if pos < 0:
             self.command("Next")
         # draw a rectangle on the screen to represent the progress of the song
         shape = (0, 50, self.size[0], 25) # x, y, width, height
