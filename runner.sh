@@ -8,4 +8,6 @@ fi
 sleep 10
 export DISPLAY=:0
 cd /home/debian/ECE434-Music
+chmod +x eqep.sh
+./eqep.sh
 python3 player.py

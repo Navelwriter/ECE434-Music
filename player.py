@@ -15,6 +15,8 @@ import gpiod
 app = Flask(__name__)
 folder_path = "/home/debian/ECE434-Music/music"
 player = None
+white_color = (255, 255, 255)
+black_color = (0, 0, 0)
 
 class pyPlayer :
     screen = None
@@ -94,38 +96,59 @@ class pyPlayer :
 
     def drawTitle(self, font):
         # clear the screen before drawing
-        pygame.draw.rect(self.screen, (0, 0, 0), (0, 0, self.size[0], 50))
-        text = font.render(self.song, 1, (255, 255, 255))
+        shape = (0, 0, self.size[0], 50) # x, y, width, height
+        pygame.draw.rect(self.screen, black_color, shape)
+        # cut the .mp3 from the song name
+        song_name = self.song[:-4]
+        # append index/total to the song name
+        song_name = str(self.song_index+1) + "/" + str(len(self.song_list)) + " " + song_name
+        text = font.render(song_name, 1, white_color)
         self.screen.blit(text, (10, 10))
+
+    def getTime(self, time):
+        minutes = math.floor(time/60)
+        seconds = time%60
+        seconds = math.floor(seconds)
+        if seconds < 10:
+            seconds = "0" + str(seconds)
+        return str(minutes) + ":" + str(seconds)
 
     def draw(self):
         # display the name of the song on the screen
         font = pygame.font.Font(None, 36) 
         self.drawTitle(font)
+
         # display the progress of the song on the screen as text 
         pos = mixer.music.get_pos()
-        minutes = math.floor(pos/60000)
-        seconds = (pos%60000)/1000
-        seconds = math.floor(seconds)
-        # add a leading zero if seconds is less than 10
-        if seconds < 10:
-            seconds = "0" + str(seconds)
-        text = font.render(str(minutes) + ":" + str(seconds), 1, (255, 255, 255))
-        pygame.draw.rect(self.screen, (0, 0, 0), (10, 50, 100, 50))
-        self.screen.blit(text, (10, 50))
-        # print(pos)
-        if int(pos) < 0:
-            print("Playing next song")
-            self.command("Next")
+        # convert from milliseconds to seconds 
+        pos = pos/1000
+        time = self.getTime(pos)
+        text = font.render(time, 1, white_color)
+        shape = (10, 90, 100, 50) # x, y, width, height
+        text_location = (10, 90) # x, y
+        pygame.draw.rect(self.screen, black_color, shape) #this prevents overlapping of text
+        self.screen.blit(text, text_location) 
+
         #get the total length of the song 
         length = self.song_info.info.length
-        minutes = math.floor(length/60)
-        seconds = length%60
-        #truncate to 0 decimal places and only have minutes and seconds
-        seconds = math.floor(seconds)
-        text = font.render(str(minutes) + ":" + str(seconds), 1, (255, 255, 255))
-        pygame.draw.rect(self.screen, (0, 0, 0), (self.size[0]-110, 50, 100, 50))
-        self.screen.blit(text, (self.size[0]-110, 50))
+        time = self.getTime(length)
+        text = font.render(time, 1, white_color)
+        shape = (self.size[0]-110, 90, 100, 50) # x, y, width, height
+        text_location = (self.size[0]-110, 90) # x, y
+        pygame.draw.rect(self.screen, black_color, shape)
+        self.screen.blit(text, text_location)
+
+        progress = round(pos/length, 2) # get the progress of the song as a percentage
+        if progress == -0.0:
+            progress = 1.0
+        if progress == 1.0:
+            self.command("Next")
+        # draw a rectangle on the screen to represent the progress of the song
+        shape = (0, 50, self.size[0], 25) # x, y, width, height
+        pygame.draw.rect(self.screen, black_color, shape)
+        shape = (0, 50, self.size[0]*progress, 25) # x, y, width, height
+        pygame.draw.rect(self.screen, white_color, shape)
+
 
 CONSUMER='getset'
 CHIP='1'
@@ -153,7 +176,6 @@ f.close()
 f =  open(COUNTERPATH + '/count', 'r')
 
 olddata = '1'
-
 
 def get_input(player):
     vals = getlines.get_values()
