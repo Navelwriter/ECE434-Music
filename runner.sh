@@ -5,11 +5,9 @@ if [ $(id -u) -ne 0 ]; then
     exit 1
 fi
 
-#sleep 10
+sleep 10
 config-pin P8_11 eqep
 config-pin P8_12 eqep
 export DISPLAY=:0
 cd /home/debian/ECE434-Music
-#chmod +x eqep.sh
-#./eqep.sh
 python3 player.py

@@ -9,6 +9,7 @@ fi
 sudo apt-get install -y alsa-tools alsa-utils
 sudo apt-get install -y python3-mutagen
 sudo apt-get install -y python3-pygame
+sudo apt-get install -y python3-flask-socketio
 sudo apt-get install -y gpiod
 
 

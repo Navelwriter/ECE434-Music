@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+  <title>Music Player</title>
+    <style>
+    body {
+        font-family: Arial;
+        text-align: center;
+        padding: 20px;  
+    }
+
+
+    /* Button Styling */
+    button {
+    background-color: #4CAF50; 
+    color: white;
+    padding: 15px 30px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px; 
+    cursor: pointer;
+    font-size: 16px;  
+    }
+
+    button:hover {
+    opacity: 0.8; 
+    }
+
+    /* Section Container */
+    .controls-section {
+    background-color: #f8f8f8; /* Slightly lighter background */
+    border-radius: 15px; /* Rounded corners */
+    padding: 20px;
+    margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MP3 Bone</h1>
+    </header>
+   <button onclick="sendCommand('Play/Pause')">Play/Pause</button>
+    <button onclick="sendCommand('Next')">Next</button>
+    <button onclick="sendCommand('Previous')">Previous</button>
+    <button onclick="sendCommand('Quit')">Quit</button>
+    <button onclick="sendCommand('Refresh');">Refresh Playlist</button> 
+    
+    <script>
+        const socket = io();
+        function sendCommand(command) {
+            socket.emit('control', { command: command });
+        }
+    </script>
+<head>
+    <title> Upload .mp3 file: GFG</title>
+    <style>
+        body {
+            text-align: center;
+            padding: 250px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload .mp3 file</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <input type="submit" value="Upload" />
+    </form>
+</html> 

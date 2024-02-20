@@ -1,0 +1,17 @@
+<html> 
+   <head> 
+      <title>success</title> 
+   </head> 
+   <body> 
+      <p>File uploaded successfully</p> 
+      <p>File Name: {{name}}</p> 
+      <button onclick="sendCommand('Refresh');">Refresh Playlist</button>
+      <button onclick="window.location.href = '/';">Back</button>
+   </body> 
+    <script>
+        const socket = io();
+        function sendCommand(command) {
+            socket.emit('control', { command: command });
+        }
+    </script>
+</html>

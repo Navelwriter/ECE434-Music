@@ -10,6 +10,9 @@ import math
 import time
 from mutagen.mp3 import MP3
 import gpiod
+from flask import Flask, render_template, request
+import socketio
+app = Flask(__name__)
 folder_path = "/home/debian/ECE434-Music/music"
 player = None
 white_color = (255, 255, 255)
@@ -43,11 +46,14 @@ class pyPlayer :
         mixer.music.set_volume(0.7) 
 
     def scan_music(self):
+        list = []
         for root, dirs, files in os.walk(folder_path):
             for file in files:
                 if file.endswith(".mp3"):
-                    self.song_list.append(file)
-        print(self.song_list)
+                    list.append(file)
+        print(list)
+        self.song_list = list
+        
 
     def __del__(self):
         "Destructor to make sure pygame shuts down, etc." 
@@ -88,6 +94,9 @@ class pyPlayer :
             self.set_song(self.song_list[self.song_index])
             mixer.music.play()
             self.is_Paused = False
+        elif cmd == "Refresh":
+            self.scan_music()
+
 
     def startMusic(self):
         mixer.music.play()
@@ -152,6 +161,7 @@ class pyPlayer :
         self.drawVolume(font)
 
         progress = round(pos/length, 2) # get the progress of the song as a percentage
+        progress = int(progress)
         if pos < 0:
             self.command("Next")
         # draw a rectangle on the screen to represent the progress of the song
@@ -202,11 +212,21 @@ def get_input(player):
     elif(vals[0] == 1):
         player.command("Quit")
 
+# create socketio client
+sio = socketio.Client()
+sio.connect('http://localhost:8081')
+
+def start_listener(player):
+    @sio.on('command')
+    def on_command(data):
+        print('I received a command: ', data)
+        player.command(data)
 
 # Start playing the song 
 mixer.init()
 player = pyPlayer()
 player.startMusic()
+sio.start_background_task(start_listener, player)
 vol = 0.7
 
 print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
