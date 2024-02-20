@@ -229,7 +229,7 @@ player.startMusic()
 sio.start_background_task(start_listener, player)
 vol = 0.7
 
-print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
+print("Connected to Server: Connect to http://192.168.7.2:8081/")
 while True:
     player.draw()
     pygame.display.update()

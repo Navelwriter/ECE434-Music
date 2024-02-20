@@ -209,7 +209,6 @@ player = pyPlayer()
 player.startMusic()
 vol = 0.7
 
-print("Press 'p' to pause, 'r' to resume, 's' to stop, 'q' to quit")
 while True:
     player.draw()
     pygame.display.update()
