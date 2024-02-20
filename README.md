@@ -36,16 +36,20 @@ This is using eQEP2 on BeagleBoard:
 ## Driver Setup and Install
 Download the repository in a folder of your choosing
 #### LCD Device Tree Install
-Either copy uEnv.txt from the repository into /boot or follow the following instructions:\
+Either copy uEnv.txt from the repository into /boot or follow the following instructions:
+
 Edit /boot/uEnv.txt and find the line starting with \
-``#uboot_overlay_addr4=``\
+``#uboot_overlay_addr4=``
+
 Uncomment it and change it to: \
-``uboot_overlay_addr4=/lib/firmware/BB-LCD-ADAFRUIT-24-SPI0-00A0.dtbo``\
+``uboot_overlay_addr4=/lib/firmware/BB-LCD-ADAFRUIT-24-SPI0-00A0.dtbo``
+
 Further down uncomment the following lines to disable the hdmi audio and video from overriding the usb audio device: \
 ``#disable_uboot_overlay_video=1``\
-``#disable_uboot_overlay_audio=1``\
+``#disable_uboot_overlay_audio=1``
+
 Inside the ECE343-Music folder from downloading the repo, run the following scripts\
-``sudo ./installDep.sh`` This installs the necessary packages
+``sudo ./installDep.sh`` This installs the necessary packages\
 ``sudo ./install.sh`` This adds the music player as a systemd package and runs the app
 
 ## Instructions
@@ -62,7 +66,7 @@ Run both the flask server and client in two ways:\
 <img src="https://github.com/Navelwriter/ECE434-Music/assets/77686570/ae75ac10-8dcd-4c5c-a981-7ff00c84ffd0" width="60%" height="60%"> 
 
 Or run it manually by: \
-On one shell window run ``sudo ./player_server.py`` and wait for the server to load.
+On one shell window run ``sudo ./player_server.py`` and wait for the server to load.\
 Opening another window, run ``sudo ./player_client.py`` 
 ### Connect to flask server webpage
 After the server is started, connect to the server using the link http://192.168.7.2:8081/
