@@ -49,13 +49,25 @@ Inside the ECE343-Music folder from downloading the repo, run the following scri
 ``sudo ./install.sh`` This adds the music player as a systemd package and runs the app
 
 ## Instructions
-#### Music Install
+### Music Install
 Install any number of music files by inserting only ``.mp3`` files into the ``/music/`` folder of the respoitory.
-#### Running the Software
+### Running the Software (Systemd)
 Once software and systemd has been installed using ``sudo./install.sh``, you can run the program in two ways:\
 ``sudo ./runner.sh``\
-Or on boot using the systemd service or\
+Or on boot using the systemctl service or\
 ``systemctl start player.service``
+### Running the Software (Flask Server)
+Run both the flask server and client in two ways:\
+``sudo ./start_server.sh``\
+<img src="https://github.com/Navelwriter/ECE434-Music/assets/77686570/ae75ac10-8dcd-4c5c-a981-7ff00c84ffd0" width="60%" height="60%"> 
+
+Or run it manually by: \
+On one shell window run ``sudo ./player_server.py`` and wait for the server to load.
+Opening another window, run ``sudo ./player_client.py`` 
+### Connect to flask server webpage
+After the server is started, connect to the server using the link http://192.168.7.2:8081/
+![image](https://github.com/Navelwriter/ECE434-Music/assets/77686570/d4737866-6cd7-4cda-9b0d-2c815cc4d4c0)
+
 
 
 
