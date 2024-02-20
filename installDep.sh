@@ -6,11 +6,7 @@ if [ $(id -u) -ne 0 ]; then
 fi
 
 # check if user has the below packages installed
-sudo apt-get install -y alsa-tools alsa-utils
-sudo apt-get install -y python3-mutagen
-sudo apt-get install -y python3-pygame
-sudo apt-get install -y python3-flask-socketio
-sudo apt-get install -y gpiod
+sudo apt-get install -y alsa-tools alsa-utils python3-mutagen python3-pygame python3-flask-socketio tmux gpiod
 
 
 
