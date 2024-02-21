@@ -161,7 +161,6 @@ class pyPlayer :
         self.drawVolume(font)
 
         progress = round(pos/length, 2) # get the progress of the song as a percentage
-        progress = int(progress)
         if pos < 0:
             self.command("Next")
         # draw a rectangle on the screen to represent the progress of the song

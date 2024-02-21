@@ -25,7 +25,7 @@ def upload():
     #check if the file is an mp3 file
     if f.filename[-4:] != '.mp3':
       return 'file is not an mp3 file'
-    f.save('/music/' + f.filename)
+    f.save('music/' + f.filename)
     return render_template("success.html", name = f.filename)
 
 if __name__ == '__main__':
