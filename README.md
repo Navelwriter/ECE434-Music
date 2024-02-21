@@ -6,6 +6,7 @@ This is a mp3-player for the BeagleBone Black SBC.
 1. 2.4" TFT LCD display via SPI (ili9341)
 2. 4x Pushbuttons
 3. eQEP Rotary Encoder
+4. Driverless USB Stereo Audio Adapter [Example product here](https://www.amazon.com/dp/B00IRVQ0F8)
 #### LCD Installation
 | LCD Label | Pin Location |
 | ------------ | ----- |
